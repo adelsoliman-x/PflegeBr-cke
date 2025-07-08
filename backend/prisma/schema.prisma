@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  password     String
+  name         String
+  role         String        @default("user")
+  profile      Profile?
+  emailVerified  Boolean  @default(false)  // ✅ حقل لتأكيد الإيميل
+  verificationCode String?                 // ✅ كود التأكيد
+  subscription Subscription?
+  createdAt DateTime @default(now())
+  cashRequests CashRequest[] 
+}
+
+model Profile {
+  id             Int     @id @default(autoincrement())
+  userId         String  @unique
+  additionalInfo String?
+  user           User    @relation(fields: [userId], references: [id])
+}
+
+model Subscription {
+  id         Int       @id @default(autoincrement())
+  userId     String    @unique
+  status     String // 'active', 'expired', 'cash_pending'
+  expiryDate DateTime?
+  user       User      @relation(fields: [userId], references: [id])
+}
+
+model CashRequest {
+  id        String   @id @default(uuid())
+  userId    String
+  status    String   @default("pending") // pending | approved | rejected
+  duration  Int? // عدد الشهور
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Job {
+  id             Int      @id @default(autoincrement())
+  candidateName  String
+  specialization String
+  skills         String
+  country        String
+  city           String
+  status         String // 'Available', 'Hired'
+  fileUrl        String
+  createdAt      DateTime @default(now())
+}
