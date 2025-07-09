@@ -38,7 +38,7 @@ const AdminCashRequests = () => {
 
   const rejectRequest = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/cash-requests/${id}/reject`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/cash-requests/${id}/reject`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -61,7 +61,7 @@ const AdminCashRequests = () => {
 
   const approveRequest = async (id, duration = 1) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/cash-requests/${id}/approve`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/cash-requests/${id}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
