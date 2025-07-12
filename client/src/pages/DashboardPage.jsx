@@ -21,7 +21,7 @@ const DashboardPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const { token } = useAuth(); // ✅ دي اللي هنستخدمها في fetch
+  const { token, loading } = useAuth(); // ✅ دي اللي هنستخدمها في fetch
   const [formData, setFormData] = useState({
     candidate_name: '',
     specialization: '',
@@ -42,8 +42,10 @@ const DashboardPage = () => {
 };
 
  useEffect(() => {
-  fetchJobs(); // ✅ بدلاً من localStorage
-}, []);
+  if (!loading && token) {
+    fetchJobs(); // ⬅ هتشتغل بعد ما التوكن يبقى جاهز
+  }
+}, [loading, token]);
 
 
 
@@ -62,11 +64,16 @@ const DashboardPage = () => {
     });
 
     const data = await res.json();
-    setJobs(data); // ✅ اعرض الوظائف من السيرفر مش من localStorage
+
+    if (!Array.isArray(data)) throw new Error(data.message || 'Invalid response');
+
+    setJobs(data);
   } catch (err) {
-    console.error('❌ Error fetching jobs:', err);
+    console.error('❌ Fetch error:', err);
+    toast({ title: 'Error', description: err.message || 'Something went wrong' });
   }
 };
+
 
 
 const handleSubmit = async (e) => {
