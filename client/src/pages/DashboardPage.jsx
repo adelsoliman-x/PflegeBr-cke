@@ -41,17 +41,11 @@ const DashboardPage = () => {
   }
 };
 
-  useEffect(() => {
-    const storedJobs = localStorage.getItem('jobPosts');
-    if (storedJobs) {
-      setJobs(JSON.parse(storedJobs));
-    }
-  }, []);
+ useEffect(() => {
+  fetchJobs(); // ✅ بدلاً من localStorage
+}, []);
 
-  const saveJobs = (updatedJobs) => {
-    setJobs(updatedJobs);
-    localStorage.setItem('jobPosts', JSON.stringify(updatedJobs));
-  };
+
 
   const handleInputChange = (e) => {
     setFormData(prev => ({
@@ -59,6 +53,21 @@ const DashboardPage = () => {
       [e.target.name]: e.target.value
     }));
   };
+  const fetchJobs = async () => {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/jobs`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    setJobs(data); // ✅ اعرض الوظائف من السيرفر مش من localStorage
+  } catch (err) {
+    console.error('❌ Error fetching jobs:', err);
+  }
+};
+
 
 const handleSubmit = async (e) => {
   e.preventDefault();
