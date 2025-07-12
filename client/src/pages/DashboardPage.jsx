@@ -58,27 +58,48 @@ const DashboardPage = () => {
     }));
   };
 
-const handleSubmit = (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
 
   const newJob = {
-    id: editingJob ? editingJob.id : Date.now(), // استخدم ID موجود أو أنشئ واحد جديد
-    ...formData,
-    city: `${formData.country} / ${formData.city}`,
+    candidateName: formData.candidate_name,
+    specialization: formData.specialization,
+    skills: formData.skills,
+    city: formData.city,
+    country: formData.country,
+    status: formData.status,
+    files: formData.files.map(f => f.url),
   };
 
-  let updatedJobs;
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/jobs`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`, // لو بتستخدم توكن
+      },
+      body: JSON.stringify(newJob),
+      credentials: 'include', // لو بتستخدم httpOnly cookie
+    });
 
-  if (editingJob) {
-    updatedJobs = jobs.map(job => job.id === editingJob.id ? newJob : job);
-  } else {
-    updatedJobs = [...jobs, newJob];
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to create job');
+    }
+
+    // بعد النجاح، ضيفها للـ state المحلي
+    setJobs(prev => [...prev, data.job]);
+    toast({ title: 'Saved', description: 'Job has been saved to the database ✅' });
+    resetForm();
+  } catch (err) {
+    console.error('❌ Error creating job:', err);
+    toast({ title: 'Error', description: err.message || 'Failed to create job', variant: 'destructive' });
   }
-
-  saveJobs(updatedJobs);
-  toast({ title: 'Saved', description: 'Job has been saved successfully.' });
-  resetForm(); // تقفل الفورم وتفرغ البيانات
 };
+
+<DialogDescription id="dialog-description">Add a job post</DialogDescription>
+
 
 
   const handleFileChange = async (e) => {
