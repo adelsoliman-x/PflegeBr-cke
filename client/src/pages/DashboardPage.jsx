@@ -96,11 +96,6 @@ const handleSubmit = async (e) => {
   }
 };
 
-
-<DialogDescription id="dialog-description">Add a job post</DialogDescription>
-
-
-
   const handleFileChange = async (e) => {
   const files = Array.from(e.target.files);
 
