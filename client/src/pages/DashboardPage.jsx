@@ -55,7 +55,7 @@ const DashboardPage = () => {
       [e.target.name]: e.target.value
     }));
   };
-  const fetchJobs = async () => {
+const fetchJobs = async () => {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/jobs`, {
       headers: {
@@ -65,12 +65,18 @@ const DashboardPage = () => {
 
     const data = await res.json();
 
-    if (!Array.isArray(data)) throw new Error(data.message || 'Invalid response');
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to fetch jobs');
+    }
+
+    if (!Array.isArray(data)) {
+      throw new Error('Unexpected data format');
+    }
 
     setJobs(data);
   } catch (err) {
-    console.error('❌ Fetch error:', err);
-    toast({ title: 'Error', description: err.message || 'Something went wrong' });
+    console.error('Fetch error from jobs:', err);
+    toast({ title: 'Error', description: err.message });
   }
 };
 
