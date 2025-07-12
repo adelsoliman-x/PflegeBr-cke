@@ -72,6 +72,7 @@ const handleSubmit = async (e) => {
   };
 
   try {
+    console.log('🔼 Job being submitted:', newJob);
     const res = await fetch(`${import.meta.env.VITE_API_URL}/jobs`, {
       method: 'POST',
       headers: {
