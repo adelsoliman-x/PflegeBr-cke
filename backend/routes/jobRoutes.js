@@ -4,7 +4,7 @@ const prisma = require('../prismaClient');
 const authenticateToken = require('../middleware/authenticateToken');
 const authenticate = require("../middleware/auth");
 // ✅ إضافة وظيفة جديدة (Job)
-router.post('/jobs', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   const {
     candidateName,
     specialization,
