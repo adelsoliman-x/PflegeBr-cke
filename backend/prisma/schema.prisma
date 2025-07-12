@@ -53,6 +53,6 @@ model Job {
   country        String
   city           String
   status         String // 'Available', 'Hired'
-  fileUrl        String
+  fileUrls       String[]
   createdAt      DateTime @default(now())
 }

@@ -20,6 +20,7 @@ const JobsPage = () => {
   const [selectedJobForFiles, setSelectedJobForFiles] = useState(null);
 
 
+
   useEffect(() => {
     const storedJobs = localStorage.getItem('jobPosts');
     if (storedJobs) {

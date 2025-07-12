@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
 import { Plus, Edit, Trash2, Briefcase, Users, TrendingUp, FileText, X } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DashboardPage = () => {
   const [filterStatus, setFilterStatus] = useState('all');
@@ -20,6 +21,7 @@ const DashboardPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const { token } = useAuth(); // ✅ دي اللي هنستخدمها في fetch
   const [formData, setFormData] = useState({
     candidate_name: '',
     specialization: '',
@@ -65,39 +67,35 @@ const handleSubmit = async (e) => {
     candidateName: formData.candidate_name,
     specialization: formData.specialization,
     skills: formData.skills,
-    city: formData.city,
     country: formData.country,
+    city: formData.city,
     status: formData.status,
-    files: formData.files.map(f => f.url),
+    files: formData.files, // ✅ array of { name, url }
   };
 
   try {
-    console.log('🔼 Job being submitted:', newJob);
     const res = await fetch(`${import.meta.env.VITE_API_URL}/jobs`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`, // لو بتستخدم توكن
+        Authorization: `Bearer ${token}`, // لازم تكون جايب التوكن من context أو غيره
       },
       body: JSON.stringify(newJob),
-      credentials: 'include', // لو بتستخدم httpOnly cookie
     });
 
     const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(data.message || 'Failed to create job');
-    }
+    if (!res.ok) throw new Error(data.message);
 
-    // بعد النجاح، ضيفها للـ state المحلي
-    setJobs(prev => [...prev, data.job]);
-    toast({ title: 'Saved', description: 'Job has been saved to the database ✅' });
-    resetForm();
+    toast({ title: '✅ Success', description: 'Job created successfully' });
+    fetchJobs(); // ⬅️ جدد البيانات
+    resetForm(); // ⬅️ فضي الفورم
   } catch (err) {
-    console.error('❌ Error creating job:', err);
-    toast({ title: 'Error', description: err.message || 'Failed to create job', variant: 'destructive' });
+    console.error('❌ Job creation error:', err);
+    toast({ title: 'Error', description: err.message || 'Something went wrong' });
   }
 };
+
 
 <DialogDescription id="dialog-description">Add a job post</DialogDescription>
 
@@ -386,6 +384,23 @@ const handleSubmit = async (e) => {
                         )}
                       </>
                     )}
+                    {job.fileUrls?.length > 0 && (
+  <div className="mt-2 space-y-1">
+    <p className="text-xs font-semibold">{t('uploadedFiles')}:</p>
+    {job.fileUrls.map((url, i) => (
+      <a
+        key={i}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-blue-500 underline block"
+      >
+        File {i + 1}
+      </a>
+    ))}
+  </div>
+)}
+
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Button variant="ghost" size="sm" onClick={() => handleEdit(job)}><Edit className="h-4 w-4" /></Button>

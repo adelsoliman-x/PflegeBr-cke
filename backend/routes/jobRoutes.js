@@ -12,7 +12,7 @@ router.post('/jobs', authenticateToken, async (req, res) => {
     country,
     city,
     status,
-    fileUrl
+    files // 👈 دي هتبقى array of objects: { name, url }
   } = req.body;
 
   try {
@@ -24,8 +24,10 @@ router.post('/jobs', authenticateToken, async (req, res) => {
         country,
         city,
         status,
-        fileUrl,
-      },
+        fileUrls: {
+          set: files.map(file => file.url) // ✅ ناخد الـ URL بس
+        }
+      }
     });
 
     res.status(201).json({ message: 'Job created', job: newJob });
@@ -34,6 +36,7 @@ router.post('/jobs', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error creating job' });
   }
 });
+
 
 // ✅ جلب كل الوظائف (المشترك فقط)
 router.get("/", authenticate, async (req, res) => {
